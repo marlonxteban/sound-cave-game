@@ -1,0 +1,124 @@
+# Archivos de proyecto de Visual Studio
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Archivos de proyecto de Visual Studio C++
+*.vcxproj
+*.vcxproj.filters
+*.VC.db
+*.VC.VC.opendb
+*.VC.opendb
+
+# Archivos intermedios de la compilación
+Debug/
+Release/
+x64/
+x86/
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
+*.db
+*.jfm
+ipch/
+
+# Archivos de build
+[Bb]in/
+[Oo]bj/
+*.exe
+*.dll
+*.lib
+*.exp
+*.pdb
+*.ilk
+*.ipch
+*.obj
+*.pch
+*.res
+*.sbr
+*.idb
+*.msi
+*.lib
+*.dll
+
+# Carpetas generadas
+_ReSharper*/
+[Tt]humbs/
+[Bb]uild/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+*.log
+
+# Otros
+*.bak
+*.tmp
+*~
+*.swp
+
+# Imágenes y recursos
+*.bmp
+*.png
+*.ico
+*.jpg
+*.gif
+
+# User-specific files
+*.suo
+*.user
+*.sln.docstates
+*.sln.ide/
+
+# Visual C++ cache files
+ipch/
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
+
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+.vs/
+
+# Guidance Automation Toolkit
+*.gpState
+
+# ReSharper is a .NET coding add-in
+_ReSharper*/
+
+# NCrunch
+*.ncrunch*
+.*crunch*.local.xml
+
+# Installshield output folder
+[Ee]xpress/
+
+# DocProject is a documentation generator add-in
+DocProject/buildhelp/
+DocProject/Help/*.HxT
+DocProject/Help/*.HxC
+DocProject/Help/*.hhc
+DocProject/Help/*.hhk
+DocProject/Help/*.hhp
+DocProject/Help/Html2
+DocProject/Help/html
+
+# Click-Once directory
+publish/
+
+# Others
+*.pidb
+*.log
+*.scc
+*.bak
+*.swp
+*~
+*.db
+*.opendb
