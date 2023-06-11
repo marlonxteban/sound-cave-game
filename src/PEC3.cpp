@@ -7,6 +7,7 @@
 #include <time.h>
 
 #include "Scene.h"
+#include "Player.h"
 
 using namespace std;
 
@@ -22,6 +23,12 @@ const int SCENE_HEIGHT = 10;
 
 //GLOBAL
 SDL_Renderer* gMyRenderer = NULL;
+
+//GAME
+Scene cave(SCENE_WIDTH, SCENE_HEIGHT);
+Player player;
+int playerInitialX = 2;
+int playerInitialY = 7;
 
 void renderTexture(SDL_Texture* origin, SDL_Rect* _rect, int X, int Y, double angle = 0){
 		SDL_Rect source,target;
@@ -85,8 +92,11 @@ int main( int argc, char* args[] )
 	int shipGoRight;
 	int shipChannel;
 
-	Scene cave(SCENE_WIDTH, SCENE_HEIGHT);
+	
+	
 	cave.setCellsCollider("./Assets/cave.txt");
+	player.setPosition(playerInitialX, playerInitialY);
+	cave.setCellCollider(playerInitialX, playerInitialY, player.getCollider());
 	cave.printScene();
 
 	//Background
@@ -94,23 +104,23 @@ int main( int argc, char* args[] )
 	SDL_Rect	BG_rect = {0,0,512,512};
 	int	BG_x = 0;
 	int BG_y = 0;
-	//Explosion
-	SDL_Texture* sBoom = NULL;
-	SDL_Rect	Boom_rect = {0,0,32,32};
-	int	Boom_x = -32;
-	int Boom_y = -32;
-	//Laser
-	SDL_Texture* sLaser = NULL;
-	SDL_Rect	Laser_rect = { 0,0,32,32 };
-	int Laser_x = -32;
-	int Laser_y = -32;
-	//Ship
-	SDL_Texture* sShip = NULL;
-	SDL_Rect	Ship_rect = { 0,0,32,32 };
-	int Ship_X = -32;
-	int Ship_Y = 240;
-	//Audios
-	vector<Mix_Chunk*> audios;
+	////Explosion
+	//SDL_Texture* sBoom = NULL;
+	//SDL_Rect	Boom_rect = {0,0,32,32};
+	//int	Boom_x = -32;
+	//int Boom_y = -32;
+	////Laser
+	//SDL_Texture* sLaser = NULL;
+	//SDL_Rect	Laser_rect = { 0,0,32,32 };
+	//int Laser_x = -32;
+	//int Laser_y = -32;
+	////Ship
+	//SDL_Texture* sShip = NULL;
+	//SDL_Rect	Ship_rect = { 0,0,32,32 };
+	//int Ship_X = -32;
+	//int Ship_Y = 240;
+	////Audios
+	//vector<Mix_Chunk*> audios;
 
 	//Mouse
 	int	mouseX=0,mouseY=0;
@@ -123,7 +133,7 @@ int main( int argc, char* args[] )
 	//Initialize SDL
 	SDL_Init( SDL_INIT_EVERYTHING );
 	//Create window
-	gWindow = SDL_CreateWindow( "UOC Reto 2 - Sonido", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+	gWindow = SDL_CreateWindow( "PEC 3 - Cueva de los condenados", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 	//Initialize PNG loading
 	IMG_Init( IMG_INIT_PNG );
 	//Get window renderer
@@ -134,11 +144,11 @@ int main( int argc, char* args[] )
 
 	//Load PNG surface
 	sBG = loadTexture("Assets/space/background.png");
-	sBoom = loadTexture ("Assets/space/boom.png");
+	/*sBoom = loadTexture ("Assets/space/boom.png");
 	sLaser = loadTexture("Assets/space/laser.png");
-	sShip = loadTexture("Assets/space/ship.png");
+	sShip = loadTexture("Assets/space/ship.png");*/
 	//Load Audios
-	Mix_Chunk* loadSound;
+	/*Mix_Chunk* loadSound;
 	loadSound = Mix_LoadWAV("Assets/space/explosion1.wav");
 	audios.push_back(loadSound);
 	loadSound = Mix_LoadWAV("Assets/space/explosion2.wav");
@@ -150,20 +160,20 @@ int main( int argc, char* args[] )
 	loadSound = Mix_LoadWAV("Assets/space/cannon.wav");
 	audios.push_back(loadSound);
 	loadSound = Mix_LoadWAV("Assets/space/laser.wav");
-	audios.push_back(loadSound);
+	audios.push_back(loadSound);*/
 
 	// Init sound controls
-	global_deltaTime = 0;
+	/*global_deltaTime = 0;
 	global_lastTime = 0;
 	timeNextExplosion = 2000 + (rand() % 5) * 1000;
 	timeNextLaser = 100 + (rand() % 10) * 100;
 	timeNextShip = 1000 + (rand() % 5) * 1000;
-	shipGoRight = rand() % 2;
+	shipGoRight = rand() % 2;*/
 
 	while(!exit){
 // GLOBAL TIMER
-		global_deltaTime = SDL_GetTicks() - global_lastTime;
-		global_lastTime = SDL_GetTicks();
+		//global_deltaTime = SDL_GetTicks() - global_lastTime;
+		//global_lastTime = SDL_GetTicks();
 // UPDATE
 		SDL_Event test_event;
 		SDL_Scancode tecla;
@@ -174,6 +184,27 @@ int main( int argc, char* args[] )
 					if (tecla == SDL_SCANCODE_ESCAPE){
 						exit = true;
 					}
+					if (tecla == SDL_SCANCODE_UP) {
+						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], 0);
+						player.moveForward();
+						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], player.getCollider());
+						cave.printScene();
+						std::cout << "************************************************" << std::endl;
+					}
+					if (tecla == SDL_SCANCODE_RIGHT) {
+						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], 0);
+						player.turnRight();
+						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], player.getCollider());
+						cave.printScene();
+						std::cout << "************************************************" << std::endl;
+					}
+					if (tecla == SDL_SCANCODE_LEFT) {
+						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], 0);
+						player.turnLeft();
+						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], player.getCollider());
+						cave.printScene();
+						std::cout << "************************************************" << std::endl;
+					}
 				break;
 
 				case SDL_QUIT:
@@ -182,68 +213,68 @@ int main( int argc, char* args[] )
 			}
 		}
 // UPDATE SOUNDS
-		timeNextExplosion -= global_deltaTime;
-		timeNextLaser -= global_deltaTime;
-		if (timeNextExplosion < 0) {
-			timeNextExplosion = 2000 + (rand() % 5) * 1000;
-			posExplosion = rand() % 360;
-			distanceExplosion = rand() % 256;
-			int Channel = Mix_PlayChannel(-1, audios[rand() % 2], 0);
-			Mix_SetPosition(Channel, posExplosion, distanceExplosion);
-			Boom_x = distanceExplosion * sin((posExplosion*PI) / 180.0) + 256;
-			Boom_y = distanceExplosion * cos((posExplosion*PI) / 180.0) + 256;
-			//cout << "Explosion Angle:" << posExplosion << " distance:" << distanceExplosion <<" Next in:" << timeNextExplosion << endl;
-		}
-		if (timeNextLaser < 0) {
-			timeNextLaser = 100 + (rand() % 10) * 100;
-			posLaser = rand() % 360;
-			distanceLaser = rand() % 256;
-			int Channel = Mix_PlayChannel(-1, audios[4 + rand() % 2], 0);
-			Mix_SetPosition(Channel, posLaser, distanceLaser);
-			Laser_x = distanceLaser * sin((posLaser*PI) / 180.0) + 256;
-			Laser_y = distanceLaser * cos((posLaser*PI) / 180.0) + 256;
-			//cout << "Laser Angle:" << posLaser << " distance:" << distanceLaser << " Next in:" << timeNextLaser << endl;
-		}
+		//timeNextExplosion -= global_deltaTime;
+		//timeNextLaser -= global_deltaTime;
+		//if (timeNextExplosion < 0) {
+		//	timeNextExplosion = 2000 + (rand() % 5) * 1000;
+		//	posExplosion = rand() % 360;
+		//	distanceExplosion = rand() % 256;
+		//	int Channel = Mix_PlayChannel(-1, audios[rand() % 2], 0);
+		//	Mix_SetPosition(Channel, posExplosion, distanceExplosion);
+		//	Boom_x = distanceExplosion * sin((posExplosion*PI) / 180.0) + 256;
+		//	Boom_y = distanceExplosion * cos((posExplosion*PI) / 180.0) + 256;
+		//	//cout << "Explosion Angle:" << posExplosion << " distance:" << distanceExplosion <<" Next in:" << timeNextExplosion << endl;
+		//}
+		//if (timeNextLaser < 0) {
+		//	timeNextLaser = 100 + (rand() % 10) * 100;
+		//	posLaser = rand() % 360;
+		//	distanceLaser = rand() % 256;
+		//	int Channel = Mix_PlayChannel(-1, audios[4 + rand() % 2], 0);
+		//	Mix_SetPosition(Channel, posLaser, distanceLaser);
+		//	Laser_x = distanceLaser * sin((posLaser*PI) / 180.0) + 256;
+		//	Laser_y = distanceLaser * cos((posLaser*PI) / 180.0) + 256;
+		//	//cout << "Laser Angle:" << posLaser << " distance:" << distanceLaser << " Next in:" << timeNextLaser << endl;
+		//}
 
-		if (timeNextShip > 0) {
-			timeNextShip -= global_deltaTime;
-			if (timeNextShip < 0) {
-				timeNextShip = 0;
-				timeCrossing = MAX_TIME_SHIP_CROSS;
-				shipChannel = Mix_PlayChannel(-1, audios[2+rand() % 2], 0);
-			}
-		}
-		if (timeNextShip == 0) { // Starship is crossing
-			timeCrossing -= global_deltaTime;
-			if (timeCrossing > 0) {
-				posShip = (255 * timeCrossing) / MAX_TIME_SHIP_CROSS;
-				Uint8 leftShip;
-				Uint8 rightShip;
-				if (shipGoRight) {
-					rightShip = 255 - posShip;
-					leftShip = posShip;
-				}
-				else {
-					rightShip = posShip;
-					leftShip = 255 - posShip;
-				}
-				Mix_SetPanning(shipChannel, leftShip, rightShip);
-				Ship_X = rightShip * 2;
-				//cout << "Ship Pass:" << timeCrossing << " Left:" << (int)leftShip << " Right:" << (int)rightShip << endl;
-			}
-			if (timeCrossing < 0) {
-				timeCrossing = 0;
-				timeNextShip = 1000 + (rand() % 5) * 1000;
-				shipGoRight = rand() % 2;
-			}
-		}
+		//if (timeNextShip > 0) {
+		//	timeNextShip -= global_deltaTime;
+		//	if (timeNextShip < 0) {
+		//		timeNextShip = 0;
+		//		timeCrossing = MAX_TIME_SHIP_CROSS;
+		//		shipChannel = Mix_PlayChannel(-1, audios[2+rand() % 2], 0);
+		//	}
+		//}
+		//if (timeNextShip == 0) { // Starship is crossing
+		//	timeCrossing -= global_deltaTime;
+		//	if (timeCrossing > 0) {
+		//		posShip = (255 * timeCrossing) / MAX_TIME_SHIP_CROSS;
+		//		Uint8 leftShip;
+		//		Uint8 rightShip;
+		//		if (shipGoRight) {
+		//			rightShip = 255 - posShip;
+		//			leftShip = posShip;
+		//		}
+		//		else {
+		//			rightShip = posShip;
+		//			leftShip = 255 - posShip;
+		//		}
+		//		Mix_SetPanning(shipChannel, leftShip, rightShip);
+		//		Ship_X = rightShip * 2;
+		//		//cout << "Ship Pass:" << timeCrossing << " Left:" << (int)leftShip << " Right:" << (int)rightShip << endl;
+		//	}
+		//	if (timeCrossing < 0) {
+		//		timeCrossing = 0;
+		//		timeNextShip = 1000 + (rand() % 5) * 1000;
+		//		shipGoRight = rand() % 2;
+		//	}
+		//}
 //RENDER
 		// Clear Background
 		//Apply the PNG image
-		renderTexture(sBG,&BG_rect,BG_x,BG_y);
+		/*renderTexture(sBG,&BG_rect,BG_x,BG_y);
 		renderTexture(sBoom,&Boom_rect,Boom_x,Boom_y);
 		renderTexture(sLaser, &Laser_rect, Laser_x, Laser_y);
-		renderTexture(sShip, &Ship_rect, Ship_X, Ship_Y);
+		renderTexture(sShip, &Ship_rect, Ship_X, Ship_Y);*/
 		//Update the surface
 		SDL_RenderPresent( gMyRenderer);
 	}
@@ -252,9 +283,9 @@ int main( int argc, char* args[] )
 
 	//Free loaded image
 	SDL_DestroyTexture(sBG);
-	SDL_DestroyTexture(sBoom);
+	/*SDL_DestroyTexture(sBoom);
 	SDL_DestroyTexture(sLaser);
-	SDL_DestroyTexture(sShip);
+	SDL_DestroyTexture(sShip);*/
 
 	//Destroy window
 	SDL_DestroyRenderer(gMyRenderer);

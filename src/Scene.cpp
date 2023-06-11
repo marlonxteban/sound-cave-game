@@ -10,7 +10,7 @@ Scene::Scene(int width, int height) : width(width), height(height)
 		//create a cell for each position
 		for (int j = 0; j < height; j++)
 		{
-			cells[i][j] = Cell();
+			cells[i][j] = Cell(false, i, j);
 		}
 	}
 }
@@ -96,6 +96,7 @@ void Scene::printScene()
 		std::cout << "|";
 		for (int i = 0; i < width; i++)
 		{
+			std::cout << cells[i][j].getPosition()[0] << "," << cells[i][j].getPosition()[1] << " ";
 			std::cout << cells[i][j].getPrintChar() << "|";
 		}
 		std::cout << std::endl;
