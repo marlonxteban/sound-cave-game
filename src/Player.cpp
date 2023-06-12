@@ -1,6 +1,6 @@
 #include "Player.h"
 
-Player::Player() : positionX(0), positionY(0), direction(RIGHT), collider(3)
+Player::Player() : positionX(0), positionY(0), direction(Direction::Right), collider(3)
 {
 }
 
@@ -14,7 +14,7 @@ void Player::setPosition(int x, int y)
 	positionY = y;
 }
 
-void Player::setDirection(facingDirection dir)
+void Player::setDirection(Direction dir)
 {
 	direction = dir;
 }
@@ -23,17 +23,17 @@ void Player::turnRight()
 {
 	switch (direction)
 	{
-	case UP:
-		direction = RIGHT;
+	case Direction::Up:
+		direction = Direction::Right;
 		break;
-	case RIGHT:
-		direction = DOWN;
+	case Direction::Right:
+		direction = Direction::Down;
 		break;
-	case DOWN:
-		direction = LEFT;
+	case Direction::Down:
+		direction = Direction::Left;
 		break;
-	case LEFT:
-		direction = UP;
+	case Direction::Left:
+		direction = Direction::Up;
 		break;
 	}
 }
@@ -42,17 +42,17 @@ void Player::turnLeft()
 {
 	switch (direction)
 	{
-	case UP:
-		direction = LEFT;
+	case Direction::Up:
+		direction = Direction::Left;
 		break;
-	case RIGHT:
-		direction = UP;
+	case Direction::Right:
+		direction = Direction::Up;
 		break;
-	case DOWN:
-		direction = RIGHT;
+	case Direction::Down:
+		direction = Direction::Right;
 		break;
-	case LEFT:
-		direction = DOWN;
+	case Direction::Left:
+		direction = Direction::Down;
 		break;
 	}
 }
@@ -61,16 +61,16 @@ void Player::moveForward()
 {
 	switch (direction)
 	{
-	case UP:
+	case Direction::Up:
 		positionY--;
 		break;
-	case RIGHT:
+	case Direction::Right:
 		positionX++;
 		break;
-	case DOWN:
+	case Direction::Down:
 		positionY++;
 		break;
-	case LEFT:
+	case Direction::Left:
 		positionX--;
 		break;
 	}
@@ -84,7 +84,7 @@ int* Player::getPosition()
 	return position;
 }
 
-Player::facingDirection Player::getDirection()
+Direction Player::getDirection()
 {
 	return direction;
 }
@@ -92,4 +92,9 @@ Player::facingDirection Player::getDirection()
 int Player::getCollider()
 {
 	return collider;
+}
+
+bool Player::canMoveForward(Cell* cell)
+{
+	return cell->getCollider() == 0; //0 means no collider
 }

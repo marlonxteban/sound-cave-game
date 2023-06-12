@@ -1,25 +1,27 @@
 #pragma once
 #include "BaseEntity.h"
+#include "Cell.h"
+#include "Utils.h"
 
 class Player : public BaseEntity
 {
-	enum facingDirection { UP, DOWN, LEFT, RIGHT };
 private:
 	int positionX;
 	int positionY;
 	int collider;
-	facingDirection direction;
+	Direction direction;
 public:
 	Player();
 	~Player();
 
 	void setPosition(int x, int y);
-	void setDirection(facingDirection dir);
+	void setDirection(Direction dir);
 	void turnRight();
 	void turnLeft();
 	void moveForward();
 
 	int* getPosition();
-	facingDirection getDirection();
+	Direction getDirection();
 	int getCollider();
+	bool canMoveForward(Cell* cell);
 };

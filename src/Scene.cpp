@@ -88,6 +88,24 @@ Cell Scene::getCell(int x, int y)
 	return cells[x][y];
 }
 
+Cell Scene::getForwardCell(int x, int y, Direction direction)
+{
+// get the cell in front of the cell in a direction
+	switch (direction)
+	{
+	case Direction::Up:
+		return cells[x][y - 1];
+	case Direction::Down:
+		return cells[x][y + 1];
+	case Direction::Left:
+		return cells[x - 1][y];
+	case Direction::Right:
+		return cells[x + 1][y];
+	default:
+		return cells[x][y];
+	}
+}
+
 void Scene::printScene()
 {
 	// print the matrix of cells

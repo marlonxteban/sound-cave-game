@@ -98,6 +98,9 @@ int main( int argc, char* args[] )
 	player.setPosition(playerInitialX, playerInitialY);
 	cave.setCellCollider(playerInitialX, playerInitialY, player.getCollider());
 	cave.printScene();
+	std::cout << "************************************************" << std::endl;
+	std::cout << DirectionToString(player.getDirection());
+	std::cout << "************************************************" << std::endl;
 
 	//Background
 	SDL_Texture* sBG = NULL;
@@ -177,6 +180,7 @@ int main( int argc, char* args[] )
 // UPDATE
 		SDL_Event test_event;
 		SDL_Scancode tecla;
+		Cell nextCell;
 		while (SDL_PollEvent(&test_event)) {
 			switch (test_event.type) {
 				case SDL_KEYDOWN:
@@ -185,11 +189,22 @@ int main( int argc, char* args[] )
 						exit = true;
 					}
 					if (tecla == SDL_SCANCODE_UP) {
-						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], 0);
-						player.moveForward();
-						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], player.getCollider());
-						cave.printScene();
-						std::cout << "************************************************" << std::endl;
+						nextCell = cave.getForwardCell(player.getPosition()[0], player.getPosition()[1], player.getDirection());
+						if (player.canMoveForward(&nextCell))
+						{
+							cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], 0);
+							player.moveForward();
+							cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], player.getCollider());
+							cave.printScene();
+							std::cout << "************************************************" << std::endl;
+							std::cout << DirectionToString(player.getDirection());
+							std::cout << "************************************************" << std::endl;
+						}
+						else
+						{
+							// TODO implement enemy movement and collision sound
+							std::cout << "Yayay!!!";
+						}
 					}
 					if (tecla == SDL_SCANCODE_RIGHT) {
 						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], 0);
@@ -197,12 +212,16 @@ int main( int argc, char* args[] )
 						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], player.getCollider());
 						cave.printScene();
 						std::cout << "************************************************" << std::endl;
+						std::cout << DirectionToString(player.getDirection());
+						std::cout << "************************************************" << std::endl;
 					}
 					if (tecla == SDL_SCANCODE_LEFT) {
 						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], 0);
 						player.turnLeft();
 						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], player.getCollider());
 						cave.printScene();
+						std::cout << "************************************************" << std::endl;
+						std::cout << DirectionToString(player.getDirection());
 						std::cout << "************************************************" << std::endl;
 					}
 				break;

@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include "Cell.h"
+#include "Utils.h"
 
 class Scene
 {
@@ -20,6 +21,7 @@ class Scene
 		void setCellsCollider(const char* filenName);
 		void setCellCollider(int x, int y, int value);
 		Cell getCell(int x, int y);
+		Cell getForwardCell(int x, int y, Direction direction);
 		void printScene();
 };
 
