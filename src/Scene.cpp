@@ -106,6 +106,16 @@ Cell Scene::getForwardCell(int x, int y, Direction direction)
 	}
 }
 
+Cell* Scene::getAdjacentCells(int x, int y)
+{
+	Cell* adjacentCells = new Cell[4];
+	adjacentCells[0] = cells[x][y - 1];
+	adjacentCells[1] = cells[x][y + 1];
+	adjacentCells[2] = cells[x - 1][y];
+	adjacentCells[3] = cells[x + 1][y];
+	return adjacentCells;
+}
+
 void Scene::printScene()
 {
 	// print the matrix of cells

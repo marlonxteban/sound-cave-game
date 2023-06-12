@@ -9,7 +9,7 @@ class Cell
 		Cell();
 		Cell(int collider, int x, int y);
 		~Cell();
-		bool getCollider();
+		int getCollider();
 		int* getPosition();
 		void setPosition(int x, int y);
 		void setCollider(int newCollider);

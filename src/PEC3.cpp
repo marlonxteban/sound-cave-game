@@ -8,6 +8,7 @@
 
 #include "Scene.h"
 #include "Player.h"
+#include "Enemy.h"
 
 using namespace std;
 
@@ -23,12 +24,21 @@ const int SCENE_HEIGHT = 10;
 
 //GLOBAL
 SDL_Renderer* gMyRenderer = NULL;
+SDL_Window* gWindow = NULL;
+//Background
+SDL_Texture* sBG = NULL;
+SDL_Rect	BG_rect = { 0,0,512,512 };
+int	BG_x = 0;
+int BG_y = 0;
 
 //GAME
 Scene cave(SCENE_WIDTH, SCENE_HEIGHT);
 Player player;
 int playerInitialX = 2;
 int playerInitialY = 7;
+Enemy monster;
+int monsterInitialX = 5;
+int monsterInitialY = 4;
 
 void renderTexture(SDL_Texture* origin, SDL_Rect* _rect, int X, int Y, double angle = 0){
 		SDL_Rect source,target;
@@ -70,114 +80,81 @@ SDL_Texture* loadTexture( std::string path)
 	return finalTexture;
 }
 
-int main( int argc, char* args[] )
+bool init()
 {
-	SDL_Window* gWindow = NULL;
+	//Initialization flag
+	bool success = true;
 
-	//Sound controls
-	int global_deltaTime;
-	int global_lastTime;
-
-	int timeNextExplosion;
-	int posExplosion;
-	int distanceExplosion;
-
-	int timeNextLaser;
-	int posLaser;
-	int distanceLaser;
-
-	int timeNextShip;
-	int posShip;
-	int timeCrossing;
-	int shipGoRight;
-	int shipChannel;
-
-	
-	
 	cave.setCellsCollider("./Assets/cave.txt");
 	player.setPosition(playerInitialX, playerInitialY);
+	monster.setPosition(monsterInitialX, monsterInitialY);
 	cave.setCellCollider(playerInitialX, playerInitialY, player.getCollider());
+	cave.setCellCollider(monsterInitialX, monsterInitialY, monster.getCollider());
+	// Testing code
 	cave.printScene();
 	std::cout << "************************************************" << std::endl;
 	std::cout << DirectionToString(player.getDirection());
 	std::cout << "************************************************" << std::endl;
 
-	//Background
-	SDL_Texture* sBG = NULL;
-	SDL_Rect	BG_rect = {0,0,512,512};
-	int	BG_x = 0;
-	int BG_y = 0;
-	////Explosion
-	//SDL_Texture* sBoom = NULL;
-	//SDL_Rect	Boom_rect = {0,0,32,32};
-	//int	Boom_x = -32;
-	//int Boom_y = -32;
-	////Laser
-	//SDL_Texture* sLaser = NULL;
-	//SDL_Rect	Laser_rect = { 0,0,32,32 };
-	//int Laser_x = -32;
-	//int Laser_y = -32;
-	////Ship
-	//SDL_Texture* sShip = NULL;
-	//SDL_Rect	Ship_rect = { 0,0,32,32 };
-	//int Ship_X = -32;
-	//int Ship_Y = 240;
-	////Audios
-	//vector<Mix_Chunk*> audios;
+	srand(time(0));
+
+	//Initialize SDL
+	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
+	{
+		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+		success = false;
+	}
+	else
+	{
+		//Create window
+		gWindow = SDL_CreateWindow("PEC 3 - Cueva de los condenados", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+		if (gWindow == NULL)
+		{
+			printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
+			success = false;
+		}
+		else
+		{
+			//Initialize PNG loading
+			IMG_Init(IMG_INIT_PNG);
+			//Get window renderer
+			gMyRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+			if (gMyRenderer == NULL)
+			{
+				printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
+				success = false;
+			}
+			else
+			{
+				SDL_SetHint("SDL_HINT_RENDER_VSYNC", "1");
+				//Sound audio active
+				Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
+
+				//Load PNG surface
+				sBG = loadTexture("Assets/space/background.png");
+			}
+		}
+	}
+	return success;
+}
+
+int main( int argc, char* args[] )
+{
+
+	//Start up SDL and create window
+	if (!init())
+	{
+		printf("Failed to initialize!\n");
+		return -1;
+	}
 
 	//Mouse
 	int	mouseX=0,mouseY=0;
 
 	bool	exit = false;
 
-//INIT	
-
-	srand(time(0));
-	//Initialize SDL
-	SDL_Init( SDL_INIT_EVERYTHING );
-	//Create window
-	gWindow = SDL_CreateWindow( "PEC 3 - Cueva de los condenados", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
-	//Initialize PNG loading
-	IMG_Init( IMG_INIT_PNG );
-	//Get window renderer
-	gMyRenderer = SDL_CreateRenderer(gWindow,-1,SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	SDL_SetHint("SDL_HINT_RENDER_VSYNC", "1");
-	//Sound audio active
-	Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,1024);
-
-	//Load PNG surface
-	sBG = loadTexture("Assets/space/background.png");
-	/*sBoom = loadTexture ("Assets/space/boom.png");
-	sLaser = loadTexture("Assets/space/laser.png");
-	sShip = loadTexture("Assets/space/ship.png");*/
-	//Load Audios
-	/*Mix_Chunk* loadSound;
-	loadSound = Mix_LoadWAV("Assets/space/explosion1.wav");
-	audios.push_back(loadSound);
-	loadSound = Mix_LoadWAV("Assets/space/explosion2.wav");
-	audios.push_back(loadSound);
-	loadSound = Mix_LoadWAV("Assets/space/tie_fighter.wav");
-	audios.push_back(loadSound);
-	loadSound = Mix_LoadWAV("Assets/space/xwing.wav");
-	audios.push_back(loadSound);
-	loadSound = Mix_LoadWAV("Assets/space/cannon.wav");
-	audios.push_back(loadSound);
-	loadSound = Mix_LoadWAV("Assets/space/laser.wav");
-	audios.push_back(loadSound);*/
-
-	// Init sound controls
-	/*global_deltaTime = 0;
-	global_lastTime = 0;
-	timeNextExplosion = 2000 + (rand() % 5) * 1000;
-	timeNextLaser = 100 + (rand() % 10) * 100;
-	timeNextShip = 1000 + (rand() % 5) * 1000;
-	shipGoRight = rand() % 2;*/
-
 	while(!exit){
-// GLOBAL TIMER
-		//global_deltaTime = SDL_GetTicks() - global_lastTime;
-		//global_lastTime = SDL_GetTicks();
-// UPDATE
+
 		SDL_Event test_event;
 		SDL_Scancode tecla;
 		Cell nextCell;
@@ -189,12 +166,12 @@ int main( int argc, char* args[] )
 						exit = true;
 					}
 					if (tecla == SDL_SCANCODE_UP) {
-						nextCell = cave.getForwardCell(player.getPosition()[0], player.getPosition()[1], player.getDirection());
+						nextCell = cave.getForwardCell(player.getPositionX(), player.getPositionY(), player.getDirection());
 						if (player.canMoveForward(&nextCell))
 						{
-							cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], 0);
+							cave.setCellCollider(player.getPositionX(), player.getPositionY(), 0);
 							player.moveForward();
-							cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], player.getCollider());
+							cave.setCellCollider(player.getPositionX(), player.getPositionY(), player.getCollider());
 							cave.printScene();
 							std::cout << "************************************************" << std::endl;
 							std::cout << DirectionToString(player.getDirection());
@@ -202,8 +179,16 @@ int main( int argc, char* args[] )
 						}
 						else
 						{
-							// TODO implement enemy movement and collision sound
+							// TODO implement enemy movement and collision sound, diferentiate wall and exit
 							std::cout << "Yayay!!!";
+							std::cout << std::endl << std::endl;
+							Cell* adjacentCells;
+							adjacentCells = cave.getAdjacentCells(monster.getPositionX(), monster.getPositionY());
+							cave.setCellCollider(monster.getPositionX(), monster.getPositionY(), 0);
+							monster.move(adjacentCells);
+							cave.setCellCollider(monster.getPositionX(), monster.getPositionY(), monster.getCollider());
+							cave.printScene();
+							std::cout << "************************************************" << std::endl;
 						}
 					}
 					if (tecla == SDL_SCANCODE_RIGHT) {

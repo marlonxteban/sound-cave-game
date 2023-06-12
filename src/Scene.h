@@ -22,6 +22,7 @@ class Scene
 		void setCellCollider(int x, int y, int value);
 		Cell getCell(int x, int y);
 		Cell getForwardCell(int x, int y, Direction direction);
+		Cell* getAdjacentCells(int x, int y);
 		void printScene();
 };
 

@@ -1,17 +1,12 @@
 #include "Player.h"
 
-Player::Player() : positionX(0), positionY(0), direction(Direction::Right), collider(3)
+Player::Player() : BaseEntity(3, 0 ,0)
 {
+	direction = Direction::Right;
 }
 
 Player::~Player()
 {
-}
-
-void Player::setPosition(int x, int y)
-{
-	positionX = x;
-	positionY = y;
 }
 
 void Player::setDirection(Direction dir)
@@ -59,29 +54,23 @@ void Player::turnLeft()
 
 void Player::moveForward()
 {
+	int positionX = getPositionX();
+	int positionY = getPositionY();
 	switch (direction)
 	{
 	case Direction::Up:
-		positionY--;
+		setPositionY(positionY-1);
 		break;
 	case Direction::Right:
-		positionX++;
+		setPositionX(positionX+1);
 		break;
 	case Direction::Down:
-		positionY++;
+		setPositionY(positionY+1);
 		break;
 	case Direction::Left:
-		positionX--;
+		setPositionX(positionX-1);
 		break;
 	}
-}
-
-int* Player::getPosition()
-{
-	int* position = new int[2];
-	position[0] = positionX;
-	position[1] = positionY;
-	return position;
 }
 
 Direction Player::getDirection()
@@ -89,12 +78,7 @@ Direction Player::getDirection()
 	return direction;
 }
 
-int Player::getCollider()
-{
-	return collider;
-}
-
 bool Player::canMoveForward(Cell* cell)
 {
-	return cell->getCollider() == 0; //0 means no collider
+	return cell->getCollider() != 1; //1 means wall
 }

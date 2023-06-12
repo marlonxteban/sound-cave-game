@@ -1,6 +1,6 @@
 #include "BaseEntity.h"
 
-BaseEntity::BaseEntity() : collider(false), positionX(0), positionY(0)
+BaseEntity::BaseEntity() : collider(0), positionX(0), positionY(0)
 {
 }
 
@@ -12,7 +12,7 @@ BaseEntity::~BaseEntity()
 {
 }
 
-bool BaseEntity::getCollider()
+int BaseEntity::getCollider()
 {
 	return collider;
 }
@@ -25,9 +25,29 @@ int* BaseEntity::getPosition()
 	return position;
 }
 
+int BaseEntity::getPositionX()
+{
+	return positionX;
+}
+
+int BaseEntity::getPositionY()
+{
+	return positionY;
+}
+
 void BaseEntity::setPosition(int x, int y)
 {
 	this->positionX = x;
+	this->positionY = y;
+}
+
+void BaseEntity::setPositionX(int x)
+{
+	this->positionX = x;
+}
+
+void BaseEntity::setPositionY(int y)
+{
 	this->positionY = y;
 }
 

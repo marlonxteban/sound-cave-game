@@ -9,9 +9,13 @@ class BaseEntity
 		BaseEntity();
 		BaseEntity(int collider, int x, int y);
 		~BaseEntity();
-		bool getCollider();
+		int getCollider();
 		int* getPosition();
+		int getPositionX();
+		int getPositionY();
 		void setPosition(int x, int y);
+		void setPositionX(int x);
+		void setPositionY(int y);
 		void setCollider(int newCollider);
 		char getPrintChar();
 };

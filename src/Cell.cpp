@@ -11,7 +11,7 @@ Cell::Cell(int collider, int x, int y): collider(collider), positionX(x), positi
 Cell::~Cell()
 {
 }
-bool Cell::getCollider()
+int Cell::getCollider()
 {
 	return collider;
 }
@@ -48,6 +48,10 @@ char Cell::getPrintChar()
 	if (collider == 3)// player
 	{
 		return 'P';
+	}
+	if (collider == 4)// Enemy
+	{
+		return 'E';
 	}
 	return '_';
 }
