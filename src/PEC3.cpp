@@ -25,6 +25,8 @@ const int SCENE_HEIGHT = 10;
 //GLOBAL
 SDL_Renderer* gMyRenderer = NULL;
 SDL_Window* gWindow = NULL;
+GameStatus gameStatus;
+int exitCollider = 2;
 //Background
 SDL_Texture* sBG = NULL;
 SDL_Rect	BG_rect = { 0,0,512,512 };
@@ -135,6 +137,7 @@ bool init()
 			}
 		}
 	}
+	gameStatus = GameStatus::OnProgress;
 	return success;
 }
 
@@ -159,16 +162,26 @@ int main( int argc, char* args[] )
 		SDL_Scancode tecla;
 		Cell nextCell;
 		while (SDL_PollEvent(&test_event)) {
+			if (gameStatus == GameStatus::Finished) return 0;
 			switch (test_event.type) {
 				case SDL_KEYDOWN:
 					tecla = test_event.key.keysym.scancode;
 					if (tecla == SDL_SCANCODE_ESCAPE){
 						exit = true;
 					}
+					if (tecla == SDL_SCANCODE_RETURN && gameStatus != GameStatus::OnProgress) return 0;
+					if (gameStatus != GameStatus::OnProgress) break;
 					if (tecla == SDL_SCANCODE_UP) {
 						nextCell = cave.getForwardCell(player.getPositionX(), player.getPositionY(), player.getDirection());
 						if (player.canMoveForward(&nextCell))
 						{
+							if (nextCell.getCollider() == exitCollider)
+							{
+								std::cout << "You win!!! Press ENTER to exit game" << std::endl;
+								gameStatus = GameStatus::Win;
+								break;
+							}
+
 							cave.setCellCollider(player.getPositionX(), player.getPositionY(), 0);
 							player.moveForward();
 							cave.setCellCollider(player.getPositionX(), player.getPositionY(), player.getCollider());
@@ -176,6 +189,7 @@ int main( int argc, char* args[] )
 							std::cout << "************************************************" << std::endl;
 							std::cout << DirectionToString(player.getDirection());
 							std::cout << "************************************************" << std::endl;
+							// TODO: win logic
 						}
 						else
 						{

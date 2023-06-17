@@ -10,4 +10,12 @@ enum class Direction
 	Right
 };
 
+enum class GameStatus
+{
+	OnProgress,
+	Win,
+	Lose,
+	Finished
+};
+
 std::string DirectionToString(Direction direction);
