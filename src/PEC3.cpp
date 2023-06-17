@@ -51,7 +51,8 @@ int exitCollider = 2;
 
 Sint16 enemyPositionDegrees;
 Sint16 exitPositionDegrees;
-float distance;
+Uint8 enemyDistance;
+Uint8 exitDistance;
 
 void renderTexture(SDL_Texture* origin, SDL_Rect* _rect, int X, int Y, double angle = 0){
 		SDL_Rect source,target;
@@ -114,12 +115,36 @@ void printPlayerDirection()
 	std::cout << "************************************************" << std::endl;
 }
 
+void printDistanceToEnemy()
+{
+	std::cout << "************************************************" << std::endl;
+	std::cout << "Distancia Enemigo: "<< static_cast<int>(enemyDistance) << std::endl;
+	std::cout << "************************************************" << std::endl;
+}
+
+void printDistanceToExit()
+{
+	std::cout << "************************************************" << std::endl;
+	std::cout << "Distancia Salida: "<< static_cast<int>(exitDistance) << std::endl;
+	std::cout << "************************************************" << std::endl;
+}
+
 void printTestingOutputs()
 {
 	cave.printScene();
 	printPlayerDirection();
 	printAngleToEnemy();
 	printAngleToExit();
+	printDistanceToEnemy();
+	printDistanceToExit();
+}
+
+void updatePlayerVector()
+{
+	enemyPositionDegrees = static_cast<Sint16>(round(player.getAngleToEnemy(&monster)));
+	exitPositionDegrees = static_cast<Sint16>(round(player.getAngleToExit(exitPositionX, exitPositionY)));
+	enemyDistance = static_cast<Uint8>(round(player.getDistanceToPosition(monster.getPositionX(), monster.getPositionY())));
+	exitDistance = static_cast<Uint8>(round(player.getDistanceToPosition(exitPositionX, exitPositionY)));
 }
 
 bool init()
@@ -132,8 +157,7 @@ bool init()
 	player.setPosition(playerInitialX, playerInitialY);
 	player.setDirection(initialDirection);
 	monster.setPosition(monsterInitialX, monsterInitialY);
-	enemyPositionDegrees = static_cast<Sint16>(round(player.getAngleToEnemy(&monster)));
-	exitPositionDegrees = static_cast<Sint16>(round(player.getAngleToExit(exitPositionX, exitPositionY)));
+	updatePlayerVector();
 	cave.setCellCollider(playerInitialX, playerInitialY, player.getCollider());
 	cave.setCellCollider(monsterInitialX, monsterInitialY, monster.getCollider());
 	// Testing code
@@ -233,8 +257,7 @@ int main( int argc, char* args[] )
 							cave.setCellCollider(player.getPositionX(), player.getPositionY(), 0);
 							player.moveForward();
 							cave.setCellCollider(player.getPositionX(), player.getPositionY(), player.getCollider());
-							enemyPositionDegrees = static_cast<Sint16>(round(player.getAngleToEnemy(&monster)));
-							exitPositionDegrees = static_cast<Sint16>(round(player.getAngleToExit(exitPositionX, exitPositionY)));
+							updatePlayerVector();
 							// Testing code
 							printTestingOutputs();
 						}
@@ -248,6 +271,7 @@ int main( int argc, char* args[] )
 							cave.setCellCollider(monster.getPositionX(), monster.getPositionY(), 0);
 							monster.move(adjacentCells);
 							enemyPositionDegrees = static_cast<Sint16>(round(player.getAngleToEnemy(&monster)));
+							enemyDistance = static_cast<Uint8>(round(player.getDistanceToPosition(monster.getPositionX(), monster.getPositionY())));
 
 							if (monster.getPositionX() == player.getPositionX() && monster.getPositionY() == player.getPositionY())
 							{

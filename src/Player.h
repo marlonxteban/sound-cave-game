@@ -5,6 +5,8 @@
 
 class Player : public BaseEntity
 {
+#define MAX_DISTANCE 255
+#define MIN_DISTANCE 9
 private:
 	Direction direction;
 public:
@@ -21,4 +23,5 @@ public:
 	double getAngleToEnemy(BaseEntity* enemy);
 	double getAngleToExit(int exitX, int exitY);
 	double getRelativeAngle(double angle);
+	double getDistanceToPosition(int positionX, int positionY);
 };
