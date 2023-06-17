@@ -1,6 +1,10 @@
 #pragma once
+#include <cmath>
+
 class BaseEntity
 {
+#define PI 3.14159265
+
 	private:
 		int collider;
 		int positionX;

@@ -18,4 +18,6 @@ public:
 
 	Direction getDirection();
 	bool canMoveForward(Cell* cell);
+	double getAngleToEnemy(BaseEntity* enemy);
+	double getAngleToExit(int exitX, int exitY);
 };

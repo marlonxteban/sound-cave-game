@@ -82,3 +82,55 @@ bool Player::canMoveForward(Cell* cell)
 {
 	return cell->getCollider() != 1; //1 means wall
 }
+
+double Player::getAngleToEnemy(BaseEntity* enemy)
+{
+	double angle = atan2(enemy->getPositionY() - getPositionY(), enemy->getPositionX() - getPositionX());
+	switch (direction)
+	{
+	case Direction::Right:
+		break;
+	case Direction::Up:
+		angle += PI / 2;
+		if (angle > PI)
+			angle -= 2 * PI;
+		break;
+	case Direction::Left:
+		angle += PI;
+		if (angle > PI)
+			angle -= 2 * PI;
+		break;
+	case Direction::Down:
+		angle -= PI / 2;
+		if (angle > PI)
+			angle -= 2 * PI;
+		break;
+	}
+	return angle * 180 / PI;
+}
+
+double Player::getAngleToExit(int exitX, int exitY)
+{
+	double angle = atan2(exitY - getPositionY(), exitX - getPositionX());
+	switch (direction)
+	{
+	case Direction::Right:
+		break;
+	case Direction::Up:
+		angle += PI / 2;
+		if (angle > PI)
+			angle -= 2 * PI;
+		break;
+	case Direction::Left:
+		angle += PI;
+		if (angle > PI)
+			angle -= 2 * PI;
+		break;
+	case Direction::Down:
+		angle -= PI / 2;
+		if (angle > PI)
+			angle -= 2 * PI;
+		break;
+	}
+	return angle * 180 / PI;
+}

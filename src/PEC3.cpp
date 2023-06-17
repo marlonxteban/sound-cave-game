@@ -18,7 +18,9 @@ const int SCREEN_HEIGHT = 512;
 const int SCENE_WIDTH = 10;
 const int SCENE_HEIGHT = 10;
 
+#ifndef PI
 #define PI 3.14159265
+#endif
 
 #define MAX_TIME_SHIP_CROSS 5000 // in milisecons
 
@@ -26,7 +28,6 @@ const int SCENE_HEIGHT = 10;
 SDL_Renderer* gMyRenderer = NULL;
 SDL_Window* gWindow = NULL;
 GameStatus gameStatus;
-int exitCollider = 2;
 //Background
 SDL_Texture* sBG = NULL;
 SDL_Rect	BG_rect = { 0,0,512,512 };
@@ -36,11 +37,21 @@ int BG_y = 0;
 //GAME
 Scene cave(SCENE_WIDTH, SCENE_HEIGHT);
 Player player;
+//int playerInitialX = 6;
+//int playerInitialY = 4;
 int playerInitialX = 2;
 int playerInitialY = 7;
+Direction initialDirection = Direction::Right;
 Enemy monster;
 int monsterInitialX = 5;
 int monsterInitialY = 4;
+int exitPositionX = 8;
+int exitPositionY = 8;
+int exitCollider = 2;
+
+Sint16 enemyPositionDegrees;
+Sint16 exitPositionDegrees;
+float distance;
 
 void renderTexture(SDL_Texture* origin, SDL_Rect* _rect, int X, int Y, double angle = 0){
 		SDL_Rect source,target;
@@ -82,21 +93,51 @@ SDL_Texture* loadTexture( std::string path)
 	return finalTexture;
 }
 
+void printAngleToEnemy()
+{
+	std::cout << "************************************************" << std::endl;
+	std::cout << "Angulo Enemigo: "<< enemyPositionDegrees << std::endl;
+	std::cout << "************************************************" << std::endl;
+}
+
+void printAngleToExit()
+{
+	std::cout << "************************************************" << std::endl;
+	std::cout << "Angulo Salida: "<< exitPositionDegrees << std::endl;
+	std::cout << "************************************************" << std::endl;
+}
+
+void printPlayerDirection()
+{
+	std::cout << "************************************************" << std::endl;
+	std::cout << "Direccion Jugador: "<< DirectionToString(player.getDirection()) << std::endl;
+	std::cout << "************************************************" << std::endl;
+}
+
+void printTestingOutputs()
+{
+	cave.printScene();
+	printPlayerDirection();
+	printAngleToEnemy();
+	printAngleToExit();
+}
+
 bool init()
 {
 	//Initialization flag
 	bool success = true;
 
 	cave.setCellsCollider("./Assets/cave.txt");
+	cave.setCellCollider(exitPositionX, exitPositionY, exitCollider);
 	player.setPosition(playerInitialX, playerInitialY);
+	player.setDirection(initialDirection);
 	monster.setPosition(monsterInitialX, monsterInitialY);
+	enemyPositionDegrees = static_cast<Sint16>(round(player.getAngleToEnemy(&monster)));
+	exitPositionDegrees = static_cast<Sint16>(round(player.getAngleToExit(exitPositionX, exitPositionY)));
 	cave.setCellCollider(playerInitialX, playerInitialY, player.getCollider());
 	cave.setCellCollider(monsterInitialX, monsterInitialY, monster.getCollider());
 	// Testing code
-	cave.printScene();
-	std::cout << "************************************************" << std::endl;
-	std::cout << DirectionToString(player.getDirection());
-	std::cout << "************************************************" << std::endl;
+	printTestingOutputs();
 
 	srand(time(0));
 
@@ -192,10 +233,10 @@ int main( int argc, char* args[] )
 							cave.setCellCollider(player.getPositionX(), player.getPositionY(), 0);
 							player.moveForward();
 							cave.setCellCollider(player.getPositionX(), player.getPositionY(), player.getCollider());
-							cave.printScene();
-							std::cout << "************************************************" << std::endl;
-							std::cout << DirectionToString(player.getDirection());
-							std::cout << "************************************************" << std::endl;
+							enemyPositionDegrees = static_cast<Sint16>(round(player.getAngleToEnemy(&monster)));
+							exitPositionDegrees = static_cast<Sint16>(round(player.getAngleToExit(exitPositionX, exitPositionY)));
+							// Testing code
+							printTestingOutputs();
 						}
 						else
 						{
@@ -206,6 +247,7 @@ int main( int argc, char* args[] )
 							adjacentCells = cave.getAdjacentCells(monster.getPositionX(), monster.getPositionY());
 							cave.setCellCollider(monster.getPositionX(), monster.getPositionY(), 0);
 							monster.move(adjacentCells);
+							enemyPositionDegrees = static_cast<Sint16>(round(player.getAngleToEnemy(&monster)));
 
 							if (monster.getPositionX() == player.getPositionX() && monster.getPositionY() == player.getPositionY())
 							{
@@ -216,27 +258,24 @@ int main( int argc, char* args[] )
 							}
 
 							cave.setCellCollider(monster.getPositionX(), monster.getPositionY(), monster.getCollider());
-							cave.printScene();
-							std::cout << "************************************************" << std::endl;
+							printTestingOutputs();
 						}
 					}
 					if (tecla == SDL_SCANCODE_RIGHT) {
 						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], 0);
 						player.turnRight();
 						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], player.getCollider());
-						cave.printScene();
-						std::cout << "************************************************" << std::endl;
-						std::cout << DirectionToString(player.getDirection());
-						std::cout << "************************************************" << std::endl;
+						enemyPositionDegrees = static_cast<Sint16>(round(player.getAngleToEnemy(&monster)));
+						exitPositionDegrees = static_cast<Sint16>(round(player.getAngleToExit(exitPositionX, exitPositionY)));
+						printTestingOutputs();
 					}
 					if (tecla == SDL_SCANCODE_LEFT) {
 						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], 0);
 						player.turnLeft();
 						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], player.getCollider());
-						cave.printScene();
-						std::cout << "************************************************" << std::endl;
-						std::cout << DirectionToString(player.getDirection());
-						std::cout << "************************************************" << std::endl;
+						enemyPositionDegrees = static_cast<Sint16>(round(player.getAngleToEnemy(&monster)));
+						exitPositionDegrees = static_cast<Sint16>(round(player.getAngleToExit(exitPositionX, exitPositionY)));
+						printTestingOutputs();
 					}
 				break;
 
