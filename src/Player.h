@@ -20,4 +20,5 @@ public:
 	bool canMoveForward(Cell* cell);
 	double getAngleToEnemy(BaseEntity* enemy);
 	double getAngleToExit(int exitX, int exitY);
+	double getRelativeAngle(double angle);
 };
