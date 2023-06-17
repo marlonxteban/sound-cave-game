@@ -179,9 +179,16 @@ int main( int argc, char* args[] )
 							{
 								std::cout << "You win!!! Press ENTER to exit game" << std::endl;
 								gameStatus = GameStatus::Win;
+								// TODO: stop all music, start win song
 								break;
 							}
-
+							if (nextCell.getCollider() == monster.getCollider())
+							{
+								std::cout << "You LOSE!!! Press ENTER to exit game" << std::endl;
+								gameStatus = GameStatus::Lose;
+								// TODO: stop all music, start lose song
+								break;
+							}
 							cave.setCellCollider(player.getPositionX(), player.getPositionY(), 0);
 							player.moveForward();
 							cave.setCellCollider(player.getPositionX(), player.getPositionY(), player.getCollider());
@@ -189,7 +196,6 @@ int main( int argc, char* args[] )
 							std::cout << "************************************************" << std::endl;
 							std::cout << DirectionToString(player.getDirection());
 							std::cout << "************************************************" << std::endl;
-							// TODO: win logic
 						}
 						else
 						{
@@ -200,6 +206,15 @@ int main( int argc, char* args[] )
 							adjacentCells = cave.getAdjacentCells(monster.getPositionX(), monster.getPositionY());
 							cave.setCellCollider(monster.getPositionX(), monster.getPositionY(), 0);
 							monster.move(adjacentCells);
+
+							if (monster.getPositionX() == player.getPositionX() && monster.getPositionY() == player.getPositionY())
+							{
+								std::cout << "You LOSE!!! Press ENTER to exit game" << std::endl;
+								gameStatus = GameStatus::Lose;
+								// TODO: stop all music, start lose song
+								break;
+							}
+
 							cave.setCellCollider(monster.getPositionX(), monster.getPositionY(), monster.getCollider());
 							cave.printScene();
 							std::cout << "************************************************" << std::endl;
