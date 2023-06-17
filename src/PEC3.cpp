@@ -54,6 +54,10 @@ Sint16 exitPositionDegrees;
 Uint8 enemyDistance;
 Uint8 exitDistance;
 
+//Audio
+vector<Mix_Chunk*> audios;
+int snoreChannel = 7;
+
 void renderTexture(SDL_Texture* origin, SDL_Rect* _rect, int X, int Y, double angle = 0){
 		SDL_Rect source,target;
 		source.x = _rect->x;
@@ -145,13 +149,12 @@ void updatePlayerVector()
 	exitPositionDegrees = static_cast<Sint16>(round(player.getAngleToExit(exitPositionX, exitPositionY)));
 	enemyDistance = static_cast<Uint8>(round(player.getDistanceToPosition(monster.getPositionX(), monster.getPositionY())));
 	exitDistance = static_cast<Uint8>(round(player.getDistanceToPosition(exitPositionX, exitPositionY)));
+	// play snore
+	Mix_SetPosition(snoreChannel, enemyPositionDegrees, enemyDistance);
 }
 
-bool init()
+void initGame()
 {
-	//Initialization flag
-	bool success = true;
-
 	cave.setCellsCollider("./Assets/cave.txt");
 	cave.setCellCollider(exitPositionX, exitPositionY, exitCollider);
 	player.setPosition(playerInitialX, playerInitialY);
@@ -160,8 +163,19 @@ bool init()
 	updatePlayerVector();
 	cave.setCellCollider(playerInitialX, playerInitialY, player.getCollider());
 	cave.setCellCollider(monsterInitialX, monsterInitialY, monster.getCollider());
+	gameStatus = GameStatus::OnProgress;
+	// Audio
+	Mix_PlayChannel(snoreChannel, audios[0], -1);
 	// Testing code
 	printTestingOutputs();
+
+}
+
+bool init()
+{
+
+	//Initialization flag
+	bool success = true;
 
 	srand(time(0));
 
@@ -202,7 +216,26 @@ bool init()
 			}
 		}
 	}
-	gameStatus = GameStatus::OnProgress;
+
+	// init audio
+	//Mix_Init(MIX_INIT_OGG);
+	if ((Mix_Init(MIX_INIT_OGG) & MIX_INIT_OGG) != MIX_INIT_OGG) {
+		printf("Failed Mix_Init: %s\n", Mix_GetError());
+		return -1;
+	}
+	//Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) != 0) {
+		printf("Failed Mix_OpenAudio: %s\n", Mix_GetError());
+	}
+	Mix_Chunk* loadSound;
+	loadSound = Mix_LoadWAV("Assets/sounds/snore.ogg");
+	if (loadSound == NULL) {
+		printf("Failed sound load: %s\n", Mix_GetError());
+	}
+	audios.push_back(loadSound);
+
+	// init game
+	initGame();
 	return success;
 }
 
@@ -282,6 +315,7 @@ int main( int argc, char* args[] )
 							}
 
 							cave.setCellCollider(monster.getPositionX(), monster.getPositionY(), monster.getCollider());
+							Mix_SetPosition(snoreChannel, enemyPositionDegrees, enemyDistance);
 							printTestingOutputs();
 						}
 					}
@@ -291,6 +325,7 @@ int main( int argc, char* args[] )
 						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], player.getCollider());
 						enemyPositionDegrees = static_cast<Sint16>(round(player.getAngleToEnemy(&monster)));
 						exitPositionDegrees = static_cast<Sint16>(round(player.getAngleToExit(exitPositionX, exitPositionY)));
+						Mix_SetPosition(snoreChannel, enemyPositionDegrees, enemyDistance);
 						printTestingOutputs();
 					}
 					if (tecla == SDL_SCANCODE_LEFT) {
@@ -299,6 +334,7 @@ int main( int argc, char* args[] )
 						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], player.getCollider());
 						enemyPositionDegrees = static_cast<Sint16>(round(player.getAngleToEnemy(&monster)));
 						exitPositionDegrees = static_cast<Sint16>(round(player.getAngleToExit(exitPositionX, exitPositionY)));
+						Mix_SetPosition(snoreChannel, enemyPositionDegrees, enemyDistance);
 						printTestingOutputs();
 					}
 				break;
