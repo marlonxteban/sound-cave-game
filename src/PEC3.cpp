@@ -57,6 +57,7 @@ Uint8 exitDistance;
 //Audio
 vector<Mix_Chunk*> audios;
 int snoreChannel = 7;
+int exitChannel = 6;
 
 void renderTexture(SDL_Texture* origin, SDL_Rect* _rect, int X, int Y, double angle = 0){
 		SDL_Rect source,target;
@@ -143,14 +144,23 @@ void printTestingOutputs()
 	printDistanceToExit();
 }
 
+void updateSound(int channel, Sint16 angle, Uint8 distance)
+{
+	Mix_SetPosition(channel, angle, distance);
+	int volume = (MIX_MAX_VOLUME * (MAX_DISTANCE - distance)) / MAX_DISTANCE;
+	volume = std::max(0, std::min(volume, MIX_MAX_VOLUME));
+	Mix_Volume(channel, volume);
+}
+
 void updatePlayerVector()
 {
 	enemyPositionDegrees = static_cast<Sint16>(round(player.getAngleToEnemy(&monster)));
 	exitPositionDegrees = static_cast<Sint16>(round(player.getAngleToExit(exitPositionX, exitPositionY)));
 	enemyDistance = static_cast<Uint8>(round(player.getDistanceToPosition(monster.getPositionX(), monster.getPositionY())));
 	exitDistance = static_cast<Uint8>(round(player.getDistanceToPosition(exitPositionX, exitPositionY)));
-	// play snore
-	Mix_SetPosition(snoreChannel, enemyPositionDegrees, enemyDistance);
+	// play constant sounds
+	updateSound(snoreChannel, enemyPositionDegrees, enemyDistance);
+	updateSound(exitChannel, exitPositionDegrees, exitDistance);
 }
 
 void initGame()
@@ -166,6 +176,7 @@ void initGame()
 	gameStatus = GameStatus::OnProgress;
 	// Audio
 	Mix_PlayChannel(snoreChannel, audios[0], -1);
+	Mix_PlayChannel(exitChannel, audios[1], -1);
 	// Testing code
 	printTestingOutputs();
 
@@ -208,11 +219,6 @@ bool init()
 			else
 			{
 				SDL_SetHint("SDL_HINT_RENDER_VSYNC", "1");
-				//Sound audio active
-				Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
-
-				//Load PNG surface
-				sBG = loadTexture("Assets/space/background.png");
 			}
 		}
 	}
@@ -232,6 +238,8 @@ bool init()
 	if (loadSound == NULL) {
 		printf("Failed sound load: %s\n", Mix_GetError());
 	}
+	audios.push_back(loadSound);
+	loadSound = Mix_LoadWAV("Assets/sounds/waterfall.ogg");
 	audios.push_back(loadSound);
 
 	// init game
@@ -323,18 +331,16 @@ int main( int argc, char* args[] )
 						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], 0);
 						player.turnRight();
 						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], player.getCollider());
-						enemyPositionDegrees = static_cast<Sint16>(round(player.getAngleToEnemy(&monster)));
-						exitPositionDegrees = static_cast<Sint16>(round(player.getAngleToExit(exitPositionX, exitPositionY)));
-						Mix_SetPosition(snoreChannel, enemyPositionDegrees, enemyDistance);
+
+						updatePlayerVector();
 						printTestingOutputs();
 					}
 					if (tecla == SDL_SCANCODE_LEFT) {
 						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], 0);
 						player.turnLeft();
 						cave.setCellCollider(player.getPosition()[0], player.getPosition()[1], player.getCollider());
-						enemyPositionDegrees = static_cast<Sint16>(round(player.getAngleToEnemy(&monster)));
-						exitPositionDegrees = static_cast<Sint16>(round(player.getAngleToExit(exitPositionX, exitPositionY)));
-						Mix_SetPosition(snoreChannel, enemyPositionDegrees, enemyDistance);
+
+						updatePlayerVector();
 						printTestingOutputs();
 					}
 				break;

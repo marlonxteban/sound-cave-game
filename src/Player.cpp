@@ -123,5 +123,6 @@ double Player::getRelativeAngle(double angle)
 double Player::getDistanceToPosition(int positionX, int positionY)
 {
 	double distance = hypot(positionX - getPositionX(), positionY - getPositionY());
-	return distance * static_cast<double>(MAX_DISTANCE) / static_cast<double>(MIN_DISTANCE);
+	double relativeDistance = distance * static_cast<double>(MAX_DISTANCE) / static_cast<double>(MIN_DISTANCE);
+	return relativeDistance;
 }

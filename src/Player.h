@@ -6,7 +6,7 @@
 class Player : public BaseEntity
 {
 #define MAX_DISTANCE 255
-#define MIN_DISTANCE 9
+#define MIN_DISTANCE 10
 private:
 	Direction direction;
 public:
