@@ -58,6 +58,8 @@ Uint8 exitDistance;
 vector<Mix_Chunk*> audios;
 int snoreChannel = 7;
 int exitChannel = 6;
+int playerStepsChannel = 5;
+int monsterStepsChannel = 4;
 
 void renderTexture(SDL_Texture* origin, SDL_Rect* _rect, int X, int Y, double angle = 0){
 		SDL_Rect source,target;
@@ -163,6 +165,28 @@ void updatePlayerVector()
 	updateSound(exitChannel, exitPositionDegrees, exitDistance);
 }
 
+void playTemporalSound(int channel, int soundIndex)
+{
+	Mix_PlayChannel(channel, audios[soundIndex], 0);
+	// Disable events while sound is playing
+	SDL_EventState(SDL_KEYDOWN, SDL_IGNORE);
+	SDL_EventState(SDL_KEYUP, SDL_IGNORE);
+
+	// Wait for sound to finish
+	while (Mix_Playing(channel)) {
+		SDL_Delay(100);
+	}
+
+	// Enable events again
+	SDL_EventState(SDL_KEYDOWN, SDL_ENABLE);
+	SDL_EventState(SDL_KEYUP, SDL_ENABLE);
+
+	// Flush events
+	SDL_PumpEvents();
+	SDL_FlushEvent(SDL_KEYDOWN);
+	SDL_FlushEvent(SDL_KEYUP);
+}
+
 void initGame()
 {
 	cave.setCellsCollider("./Assets/cave.txt");
@@ -241,6 +265,10 @@ bool init()
 	audios.push_back(loadSound);
 	loadSound = Mix_LoadWAV("Assets/sounds/waterfall.ogg");
 	audios.push_back(loadSound);
+	loadSound = Mix_LoadWAV("Assets/sounds/playerSteps.ogg");
+	audios.push_back(loadSound);
+	loadSound = Mix_LoadWAV("Assets/sounds/monsterMove.ogg");
+	audios.push_back(loadSound);
 
 	// init game
 	initGame();
@@ -297,6 +325,7 @@ int main( int argc, char* args[] )
 							}
 							cave.setCellCollider(player.getPositionX(), player.getPositionY(), 0);
 							player.moveForward();
+							playTemporalSound(playerStepsChannel, 2);
 							cave.setCellCollider(player.getPositionX(), player.getPositionY(), player.getCollider());
 							updatePlayerVector();
 							// Testing code
@@ -311,8 +340,10 @@ int main( int argc, char* args[] )
 							adjacentCells = cave.getAdjacentCells(monster.getPositionX(), monster.getPositionY());
 							cave.setCellCollider(monster.getPositionX(), monster.getPositionY(), 0);
 							monster.move(adjacentCells);
-							enemyPositionDegrees = static_cast<Sint16>(round(player.getAngleToEnemy(&monster)));
-							enemyDistance = static_cast<Uint8>(round(player.getDistanceToPosition(monster.getPositionX(), monster.getPositionY())));
+							updatePlayerVector();
+							updateSound(monsterStepsChannel, enemyPositionDegrees, enemyDistance);
+							Mix_HaltChannel(snoreChannel);
+							playTemporalSound(monsterStepsChannel, 3);
 
 							if (monster.getPositionX() == player.getPositionX() && monster.getPositionY() == player.getPositionY())
 							{
@@ -321,6 +352,7 @@ int main( int argc, char* args[] )
 								// TODO: stop all music, start lose song
 								break;
 							}
+							Mix_PlayChannel(snoreChannel, audios[0], -1);
 
 							cave.setCellCollider(monster.getPositionX(), monster.getPositionY(), monster.getCollider());
 							Mix_SetPosition(snoreChannel, enemyPositionDegrees, enemyDistance);
@@ -350,70 +382,6 @@ int main( int argc, char* args[] )
       			break;
 			}
 		}
-// UPDATE SOUNDS
-		//timeNextExplosion -= global_deltaTime;
-		//timeNextLaser -= global_deltaTime;
-		//if (timeNextExplosion < 0) {
-		//	timeNextExplosion = 2000 + (rand() % 5) * 1000;
-		//	posExplosion = rand() % 360;
-		//	distanceExplosion = rand() % 256;
-		//	int Channel = Mix_PlayChannel(-1, audios[rand() % 2], 0);
-		//	Mix_SetPosition(Channel, posExplosion, distanceExplosion);
-		//	Boom_x = distanceExplosion * sin((posExplosion*PI) / 180.0) + 256;
-		//	Boom_y = distanceExplosion * cos((posExplosion*PI) / 180.0) + 256;
-		//	//cout << "Explosion Angle:" << posExplosion << " distance:" << distanceExplosion <<" Next in:" << timeNextExplosion << endl;
-		//}
-		//if (timeNextLaser < 0) {
-		//	timeNextLaser = 100 + (rand() % 10) * 100;
-		//	posLaser = rand() % 360;
-		//	distanceLaser = rand() % 256;
-		//	int Channel = Mix_PlayChannel(-1, audios[4 + rand() % 2], 0);
-		//	Mix_SetPosition(Channel, posLaser, distanceLaser);
-		//	Laser_x = distanceLaser * sin((posLaser*PI) / 180.0) + 256;
-		//	Laser_y = distanceLaser * cos((posLaser*PI) / 180.0) + 256;
-		//	//cout << "Laser Angle:" << posLaser << " distance:" << distanceLaser << " Next in:" << timeNextLaser << endl;
-		//}
-
-		//if (timeNextShip > 0) {
-		//	timeNextShip -= global_deltaTime;
-		//	if (timeNextShip < 0) {
-		//		timeNextShip = 0;
-		//		timeCrossing = MAX_TIME_SHIP_CROSS;
-		//		shipChannel = Mix_PlayChannel(-1, audios[2+rand() % 2], 0);
-		//	}
-		//}
-		//if (timeNextShip == 0) { // Starship is crossing
-		//	timeCrossing -= global_deltaTime;
-		//	if (timeCrossing > 0) {
-		//		posShip = (255 * timeCrossing) / MAX_TIME_SHIP_CROSS;
-		//		Uint8 leftShip;
-		//		Uint8 rightShip;
-		//		if (shipGoRight) {
-		//			rightShip = 255 - posShip;
-		//			leftShip = posShip;
-		//		}
-		//		else {
-		//			rightShip = posShip;
-		//			leftShip = 255 - posShip;
-		//		}
-		//		Mix_SetPanning(shipChannel, leftShip, rightShip);
-		//		Ship_X = rightShip * 2;
-		//		//cout << "Ship Pass:" << timeCrossing << " Left:" << (int)leftShip << " Right:" << (int)rightShip << endl;
-		//	}
-		//	if (timeCrossing < 0) {
-		//		timeCrossing = 0;
-		//		timeNextShip = 1000 + (rand() % 5) * 1000;
-		//		shipGoRight = rand() % 2;
-		//	}
-		//}
-//RENDER
-		// Clear Background
-		//Apply the PNG image
-		/*renderTexture(sBG,&BG_rect,BG_x,BG_y);
-		renderTexture(sBoom,&Boom_rect,Boom_x,Boom_y);
-		renderTexture(sLaser, &Laser_rect, Laser_x, Laser_y);
-		renderTexture(sShip, &Ship_rect, Ship_X, Ship_Y);*/
-		//Update the surface
 		SDL_RenderPresent( gMyRenderer);
 	}
 
@@ -421,9 +389,6 @@ int main( int argc, char* args[] )
 
 	//Free loaded image
 	SDL_DestroyTexture(sBG);
-	/*SDL_DestroyTexture(sBoom);
-	SDL_DestroyTexture(sLaser);
-	SDL_DestroyTexture(sShip);*/
 
 	//Destroy window
 	SDL_DestroyRenderer(gMyRenderer);
