@@ -28,11 +28,6 @@ const int SCENE_HEIGHT = 10;
 SDL_Renderer* gMyRenderer = NULL;
 SDL_Window* gWindow = NULL;
 GameStatus gameStatus;
-//Background
-SDL_Texture* sBG = NULL;
-SDL_Rect	BG_rect = { 0,0,512,512 };
-int	BG_x = 0;
-int BG_y = 0;
 
 //GAME
 Scene cave(SCENE_WIDTH, SCENE_HEIGHT);
@@ -60,6 +55,8 @@ int snoreChannel = 7;
 int exitChannel = 6;
 int playerStepsChannel = 5;
 int monsterStepsChannel = 4;
+int monsterAttackChannel = 3;
+int wallHitChannel = 2;
 
 void renderTexture(SDL_Texture* origin, SDL_Rect* _rect, int X, int Y, double angle = 0){
 		SDL_Rect source,target;
@@ -259,9 +256,6 @@ bool init()
 	}
 	Mix_Chunk* loadSound;
 	loadSound = Mix_LoadWAV("Assets/sounds/snore.ogg");
-	if (loadSound == NULL) {
-		printf("Failed sound load: %s\n", Mix_GetError());
-	}
 	audios.push_back(loadSound);
 	loadSound = Mix_LoadWAV("Assets/sounds/waterfall.ogg");
 	audios.push_back(loadSound);
@@ -269,6 +263,13 @@ bool init()
 	audios.push_back(loadSound);
 	loadSound = Mix_LoadWAV("Assets/sounds/monsterMove.ogg");
 	audios.push_back(loadSound);
+	loadSound = Mix_LoadWAV("Assets/sounds/monsterAttack.ogg");
+	audios.push_back(loadSound);
+	loadSound = Mix_LoadWAV("Assets/sounds/wallHit.ogg");
+	audios.push_back(loadSound);
+	if (loadSound == NULL) {
+		printf("Failed sound load: %s\n", Mix_GetError());
+	}
 
 	// init game
 	initGame();
@@ -318,6 +319,8 @@ int main( int argc, char* args[] )
 							}
 							if (nextCell.getCollider() == monster.getCollider())
 							{
+								Mix_HaltChannel(snoreChannel);
+								playTemporalSound(monsterAttackChannel, 4);
 								std::cout << "You LOSE!!! Press ENTER to exit game" << std::endl;
 								gameStatus = GameStatus::Lose;
 								// TODO: stop all music, start lose song
@@ -333,9 +336,7 @@ int main( int argc, char* args[] )
 						}
 						else
 						{
-							// TODO implement enemy movement and collision sound, diferentiate wall and exit
-							std::cout << "Yayay!!!";
-							std::cout << std::endl << std::endl;
+							playTemporalSound(wallHitChannel, 5);
 							Cell* adjacentCells;
 							adjacentCells = cave.getAdjacentCells(monster.getPositionX(), monster.getPositionY());
 							cave.setCellCollider(monster.getPositionX(), monster.getPositionY(), 0);
@@ -347,6 +348,7 @@ int main( int argc, char* args[] )
 
 							if (monster.getPositionX() == player.getPositionX() && monster.getPositionY() == player.getPositionY())
 							{
+								playTemporalSound(monsterAttackChannel, 4);
 								std::cout << "You LOSE!!! Press ENTER to exit game" << std::endl;
 								gameStatus = GameStatus::Lose;
 								// TODO: stop all music, start lose song
@@ -384,11 +386,6 @@ int main( int argc, char* args[] )
 		}
 		SDL_RenderPresent( gMyRenderer);
 	}
-
-
-
-	//Free loaded image
-	SDL_DestroyTexture(sBG);
 
 	//Destroy window
 	SDL_DestroyRenderer(gMyRenderer);
