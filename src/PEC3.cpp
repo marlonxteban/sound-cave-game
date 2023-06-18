@@ -22,10 +22,8 @@ const int SCENE_HEIGHT = 10;
 #define PI 3.14159265
 #endif
 
-#define MAX_TIME_SHIP_CROSS 5000 // in milisecons
-
 //GLOBAL
-SDL_Renderer* gMyRenderer = NULL;
+//SDL_Renderer* gMyRenderer = NULL;
 SDL_Window* gWindow = NULL;
 GameStatus gameStatus;
 bool consoleDebug = false;
@@ -33,8 +31,6 @@ bool consoleDebug = false;
 //GAME
 Scene cave(SCENE_WIDTH, SCENE_HEIGHT);
 Player player;
-//int playerInitialX = 6;
-//int playerInitialY = 4;
 int playerInitialX = 2;
 int playerInitialY = 7;
 Direction initialDirection = Direction::Right;
@@ -60,45 +56,6 @@ int monsterAttackChannel = 3;
 int wallHitChannel = 2;
 int endGameChannel = 1;
 
-void renderTexture(SDL_Texture* origin, SDL_Rect* _rect, int X, int Y, double angle = 0){
-		SDL_Rect source,target;
-		source.x = _rect->x;
-		source.y = _rect->y;
-		source.w = _rect->w;
-		source.h = _rect->h;
-		target.x = X;
-		target.y = Y;
-		target.w = _rect->w;
-		target.h = _rect->h;
-		SDL_RenderCopyEx(gMyRenderer,origin,&source, &target,angle,NULL,SDL_FLIP_NONE); 
-}
-
-SDL_Texture* loadTexture( std::string path)
-{
-	//The final texture image
-	SDL_Texture*  finalTexture = NULL;
-
-	//Load image at specified path
-	SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
-	if( loadedSurface == NULL )
-	{
-		cout << "Unable to load image " << path.c_str() <<"! SDL_image Error: " << IMG_GetError() << endl;
-	}
-	else
-	{
-		//Convert surface to renderer format
-		finalTexture = SDL_CreateTextureFromSurface(gMyRenderer,loadedSurface);
-		if( finalTexture == NULL )
-		{
-			cout << "Unable to optimize image " << path.c_str() << "! SDL Error: " << SDL_GetError() << endl;
-		}
-
-		//Get rid of old loaded surface
-		SDL_FreeSurface( loadedSurface );
-	}
-
-	return finalTexture;
-}
 
 void printAngleToEnemy()
 {
@@ -233,29 +190,14 @@ bool init()
 		}
 		else
 		{
-			//Initialize PNG loading
-			IMG_Init(IMG_INIT_PNG);
-			//Get window renderer
-			gMyRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-			if (gMyRenderer == NULL)
-			{
-				printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
-				success = false;
-			}
-			else
-			{
-				SDL_SetHint("SDL_HINT_RENDER_VSYNC", "1");
-			}
 		}
 	}
 
 	// init audio
-	//Mix_Init(MIX_INIT_OGG);
 	if ((Mix_Init(MIX_INIT_OGG) & MIX_INIT_OGG) != MIX_INIT_OGG) {
 		printf("Failed Mix_Init: %s\n", Mix_GetError());
 		return -1;
 	}
-	//Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) != 0) {
 		printf("Failed Mix_OpenAudio: %s\n", Mix_GetError());
 	}
@@ -333,7 +275,7 @@ int main( int argc, char* args[] )
 						{
 							if (nextCell.getCollider() == exitCollider)
 							{
-								std::cout << "You win!!! Press ENTER to exit game" << std::endl;
+								std::cout << "You win!!! Press ENTER to exit" << std::endl;
 								gameStatus = GameStatus::Win;
 								Mix_HaltChannel(-1);
 								Mix_PlayChannel(endGameChannel, audios[6], 0);
@@ -343,7 +285,7 @@ int main( int argc, char* args[] )
 							{
 								Mix_HaltChannel(snoreChannel);
 								playTemporalSound(monsterAttackChannel, 4);
-								std::cout << "You LOSE!!! Press ENTER to exit game" << std::endl;
+								std::cout << "You LOSE!!! Press ENTER to exit" << std::endl;
 								gameStatus = GameStatus::Lose;
 								Mix_HaltChannel(-1);
 								Mix_PlayChannel(endGameChannel, audios[7], 0);
@@ -354,7 +296,6 @@ int main( int argc, char* args[] )
 							playTemporalSound(playerStepsChannel, 2);
 							cave.setCellCollider(player.getPositionX(), player.getPositionY(), player.getCollider());
 							updatePlayerVector();
-							// Testing code
 							printTestingOutputs();
 						}
 						else
@@ -408,18 +349,14 @@ int main( int argc, char* args[] )
       			break;
 			}
 		}
-		SDL_RenderPresent( gMyRenderer);
 	}
 
 	//Destroy window
-	SDL_DestroyRenderer(gMyRenderer);
-	gMyRenderer = NULL;
 	SDL_DestroyWindow( gWindow );
 	gWindow = NULL;
 
 	//Quit SDL subsystems
 	Mix_CloseAudio();
-	IMG_Quit();
 	SDL_Quit();
 
 	return 0;
